@@ -1,3 +1,5 @@
+# sun with python3 yellowPlots.py
+
 from __future__ import print_function
 import math
 import ROOT
@@ -19,7 +21,6 @@ def fillHistos(samplename, filename) :
 
     # def histo
     h_ZMass = ROOT.TH1F("ZMass_"+samplename,"ZMass_"+samplename,60,60.,120.)
-    h_ZMass1 = ROOT.TH1F("ZMass1_"+samplename,"ZMass1_"+samplename,60,60.,120.)
 
     # open file
     f = ROOT.TFile.Open(filename)
@@ -69,24 +70,19 @@ def fillHistos(samplename, filename) :
         # Check that the event contains a selected candidate, and that
         # passes the required triggers (which is necessary for samples
         # processed with TRIGPASSTHROUGH=True)
-        #if(bestCandIdx != -1 and event.HLT_passZZ4l): #FIXME: 4l sel?
-        if(bestCandIdx != -1): #FIXME: 4l sel?
-        #if(bestZIdx != -1): # sel Z tree? #FIXME: what sel to use?
+        #if(bestCandIdx != -1 and event.HLT_passZZ4l): 4l sel
+        if(bestZIdx != -1 and event.HLT_passZZ4l): # for now, ZCand has the same selection as ZZCand (fullsel)
             weight = 1.
-            ZZs = Collection(event, 'ZZCand')
-            theZZ = ZZs[bestCandIdx]   
             Zs = Collection(event, 'ZCand')
             theZ = Zs[bestZIdx]        
-            if isMC : weight = (event.overallEventWeight*theZZ.dataMCWeight/genEventSumw)
+            if isMC : weight = (event.overallEventWeight/genEventSumw) #ideally we need also *theZZ.dataMCWeight but for now is not defined for ZCand
             mZ=theZ.mass
             h_ZMass.Fill(mZ,weight)
-            # test
-            if (mZ>60. and mZ<120.):
-                h_ZMass1.Fill(mZ,weight)
+
         
     f.Close()
     
-    return h_ZMass, h_ZMass1
+    return [h_ZMass]
 
 
 def runMC():
