@@ -80,10 +80,10 @@ Lum = 35.08424 # 1/fb 2022 C-G  (= 35.181930231/fb of full 355100_362760 Golden 
 lumiText = '35.1 fb-1'
 #Lum = 21.1289 # 1/fb 2022 F-G Golden json (prompt v11)
 ### 2022 C-D
-# Lum = 8.077 # 1/fb
+Lum_CD = 8.077 # 1/fb
 # lumiText = '8.1 fb-1'
 ### 2022EE E-G
-# Lum = 27.007 # 1/fb
+Lum_EFG = 27.007 # 1/fb
 # lumiText = '27.0 fb-1' 
 
 
@@ -127,10 +127,11 @@ def printCanvas(c, type="png", name=None, path="." ) :
 
 
 ######################
-def Stack (f2018, f2022, version = "_4GeV_"):
+def Stack (f2018, f2022, f2022EE, version = "_4GeV_"):
     name = "ZZMass" + version
 
     #------------EW------------------#
+    # 2022 (C-D)
     WWZ = f2022.Get(name+"WWZ")
     WZZ = f2022.Get(name+"WZZ")
     ZZZ = f2022.Get(name+"ZZZ")
@@ -139,19 +140,32 @@ def Stack (f2018, f2022, version = "_4GeV_"):
     #VBFToZZTo4l = f2018.Get(name+"VBFToZZTo4l")
     #TTZToLLNuNu = f2018.Get(name+"TTZToLLNuNu")
     #TTZJets = f2018.Get(name+"TTZJets")
-
-   
     #EWSamples = [WZZ, ZZZ, VBFToZZTo4l, TTZToLLNuNu, TTZJets]
     EWSamples = [WZZ, ZZZ, TTWW, TTZZ]
     EW = WWZ.Clone("h_EW")
     for i in EWSamples:
         EW.Add(i,1.)
-    EW.Scale(Lum*1000.)        
+    EW.Scale(Lum_CD*1000.)
+
+    # 2022EE (E-G)
+    WWZee = f2022EE.Get(name+"WWZ")
+    ZZZee = f2022EE.Get(name+"ZZZ")
+    TTWWee = f2022EE.Get(name+"TTWW")
+    EWSamplesee = [ZZZee, TTWWee]
+    EWee = WWZee.Clone("h_EWee")
+    for i in EWSamplesee:
+        EWee.Add(i,1.)
+    EWee.Scale(Lum_EFG*1000.)
+
+    # full 2022 histo
+    EW.Add(EWee,1.) #full 2022
+            
     EW.SetLineColor(ROOT.TColor.GetColor("#000099"))
     EW.SetFillColor(ROOT.TColor.GetColor("#0331B9"))
     
 
     #------------ggTo-----------------#
+    # from 2018 for now
     ggTo4mu = f2018.Get(name+"ggTo4mu") 
     ggTo4e = f2018.Get(name+"ggTo4e")
     ggTo4tau = f2018.Get(name+"ggTo4tau")
@@ -163,36 +177,66 @@ def Stack (f2018, f2022, version = "_4GeV_"):
     ggToZZ = ggTo4mu.Clone("h_ggTo")
     for i in ggZZSamples:
         ggToZZ.Add(i,1.)
-    ggToZZ.Scale(Lum*1000.)    
+    ggToZZ.Scale(Lum*1000.) #full 2022   
     ggToZZ.SetLineColor(ROOT.TColor.GetColor("#000099"))
     ggToZZ.SetFillColor(ROOT.TColor.GetColor("#4b78ff"))  
 
     #-----------qqZZ---------------#
+    # 2022 (C-D)
     ZZTo4l = f2022.Get(name+"ZZTo4l")
-    ZZTo4l.Scale(Lum*1000.)    
+    ZZTo4l.Scale(Lum_CD*1000.) 
+    ZZTo4l = ZZTo4l.Clone("h_ZZTo4l")
+    # 2022EE (E-G)
+    ZZTo4lee = f2022EE.Get(name+"ZZTo4l")
+    ZZTo4lee.Scale(Lum_EFG*1000.) 
+    # full 2022 histo
+    ZZTo4l.Add(ZZTo4lee,1.) #full 2022
+       
     ZZTo4l.SetLineColor(ROOT.TColor.GetColor("#000099"))
     ZZTo4l.SetFillColor(ROOT.TColor.GetColor("#99ccff"))
     
     #-----------signal------------#
+    # 2022 (C-D)
     VBF125 = f2022.Get(name+"VBF125")
-    ggH = f2022.Get(name+"ggH125")
+    ggH125 = f2022.Get(name+"ggH125")
     WplusH125 = f2022.Get(name+"WplusH125")
     WminusH125 = f2022.Get(name+"WHminus125")
-    ZH125 = f2018.Get(name+"ZH125")
     ttH125 = f2022.Get(name+"ttH125")
+    bbH125 = f2022.Get(name+"bbH125")
 
-    signalSamples = [ggH, WplusH125, WminusH125, ZH125, ttH125]
+    signalSamples = [ggH125, WplusH125, WminusH125, ttH125, bbH125]
     signal = VBF125.Clone("h_signal")
-    
     for i in signalSamples:
         signal.Add(i, 1.)
-    signal.Scale(Lum*1000.)    
+    signal.Scale(Lum_CD*1000.) 
+
+    # 2022EE (E-G)
+    VBF125ee = f2022EE.Get(name+"VBF125")
+    ggH125ee = f2022.Get(name+"ggH125")
+    WplusH125ee = f2022.Get(name+"WplusH125")
+    WminusH125ee = f2022.Get(name+"WHminus125")
+    ttH125ee = f2022.Get(name+"ttH125")
+    
+    signalSamplesee = [ggH125ee, WplusH125ee, WminusH125ee, ttH125ee]
+    signalee = VBF125ee.Clone("h_signalee")
+    for i in signalSamplesee:
+        signalee.Add(i, 1.)
+    signalee.Scale(Lum_EFG*1000.)
+
+    # from 2018 for now
+    ZH125 = f2018.Get(name+"ZH125")
+    ZH125.Scale(Lum*1000.) 
+    # full 2022 histo
+    signal.Add(signalee, 1.)
+    signal.Add(ZH125, 1.) #full 2022
+      
     signal.SetLineColor(ROOT.TColor.GetColor("#cc0000"))
     signal.SetFillColor(ROOT.TColor.GetColor("#ff9b9b"))
 
     ### ZX
+    # from 2018 for now
     hzx=getZX(signal)
-    hzx.Scale(Lum*1000.)
+    hzx.Scale(Lum*1000.) #full 2022
     hzx.SetLineColor(ROOT.TColor.GetColor("#003300"))
     hzx.SetFillColor(ROOT.TColor.GetColor("#669966"))
     
@@ -264,7 +308,7 @@ for i, label in enumerate(xlabelsv):
     xlabels[i].SetTextSize(0.04)
 
 
-HStack, h_list = Stack(fMC2018, fMC2022)
+HStack, h_list = Stack(fMC2018, fMC2022, fMC2022EE)
 HData = dataGraph(fData, blind=blindPlots)
 HStack_hm = HStack.Clone()
 HData_hm = HData.Clone()
@@ -323,7 +367,7 @@ Canvas.Update() #very important!!!
 
     
 ### Zoomed m4l
-HStack_z, h_list = Stack(fMC2018, fMC2022, "_2GeV_")
+HStack_z, h_list = Stack(fMC2018, fMC2022, fMC2022EE, "_2GeV_")
 HData_z = dataGraph(fData, "_2GeV_", blind=blindPlots)
 Canvas_z = ROOT.TCanvas("M4l_z","M4l_z",canvasSizeX,canvasSizeY)
 Canvas_z.SetTicks()
@@ -366,24 +410,24 @@ CMS_lumi.CMS_lumi(Canvas_z, 0, 0)
 
 Canvas_z.Update()
 
-### Zoomed high mass
-Canvas_hm = ROOT.TCanvas("M4l_hm","M4l_hm",canvasSizeX,canvasSizeY)
-Canvas_hm.SetTicks()
-Canvas_hm.SetLogy()
-HStack_hm.Draw("histo")
-HStack_hm.GetXaxis().SetRangeUser(170.,1000.)
-HData_hm.Draw("samePE1")
-Canvas_hm.Update()
+# ### Zoomed high mass
+# Canvas_hm = ROOT.TCanvas("M4l_hm","M4l_hm",canvasSizeX,canvasSizeY)
+# Canvas_hm.SetTicks()
+# Canvas_hm.SetLogy()
+# HStack_hm.Draw("histo")
+# HStack_hm.GetXaxis().SetRangeUser(170.,1000.)
+# HData_hm.Draw("samePE1")
+# Canvas_hm.Update()
 
-### High mass, 10 GeV
-HStack10, h_list = Stack(fMC2018, fMC2022, "_10GeV_")
-HData10 = dataGraph(fData, "_10GeV_", blind=blindPlots)
-Canvas10 = ROOT.TCanvas("M4l_hm10","M4l_hm10",canvasSizeX,canvasSizeY)
-Canvas10.SetTicks()
-Canvas10.SetLogy()
-HStack10.Draw("histo")
-HStack10.GetXaxis().SetRangeUser(170.,1000.)
-HData10.Draw("samePE0E1")
-Canvas10.Update()
+# ### High mass, 10 GeV
+# HStack10, h_list = Stack(fMC2018, fMC2022, "_10GeV_")
+# HData10 = dataGraph(fData, "_10GeV_", blind=blindPlots)
+# Canvas10 = ROOT.TCanvas("M4l_hm10","M4l_hm10",canvasSizeX,canvasSizeY)
+# Canvas10.SetTicks()
+# Canvas10.SetLogy()
+# HStack10.Draw("histo")
+# HStack10.GetXaxis().SetRangeUser(170.,1000.)
+# HData10.Draw("samePE0E1")
+# Canvas10.Update()
 
 printCanvases()
