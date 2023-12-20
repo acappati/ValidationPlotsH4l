@@ -10,10 +10,11 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collect
 from ZZAnalysis.NanoAnalysis.tools import getLeptons
 
 
-pathMC2018 = "/eos/user/n/namapane/H4lnano/220420/" # FIXME: Use 2018 MC for the time being
+pathMC2018 = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/MC2018/" # FIXME: Use 2018 MC for the time being
+pathDATA = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/Data2022/"
 pathMC2022 = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231214_nano/MC2022/'
 pathMC2022EE = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231214_nano/MC2022EE/'
-pathDATA = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/Data2022/"
+
 
 ZmassValue = 91.1876
 
@@ -93,7 +94,8 @@ def fillHistos(samplename, filename) :
             genEventSumw += runs.genEventSumw
             iRun +=1
         print (samplename, ": gen=", genEventCount, "sel=",nEntries, "sumw=", genEventSumw)
-        #if nEntries>maxEntriesPerSample :
+        # run only up to a certain number of evt
+        # if nEntries>maxEntriesPerSample :
         #    genEventSumw = genEventSumw*maxEntriesPerSample/nEntries
         #    nEntries=maxEntriesPerSample
         #    print("   scaling to:", nEntries, "sumw=", genEventSumw )
@@ -158,15 +160,8 @@ def runMC(outFile):
             dict(name = "ggTo2mu2tau",filename = pathMC2018+
                         "ggTo2mu2tau_Contin_MCFM701/ZZ4lAnalysis.root"),
 
-            dict(name = "ZH125",filename = pathMC2018+
-                        "ZH125/ZZ4lAnalysis.root"),
-
-            dict(name = "VBFToZZTo4l",filename = pathMC2018 + 
-                        "VBFToContinToZZTo4l/ZZ4lAnalysis.root"),
-            dict(name = "TTZToLLNuNu",filename = pathMC2018 + 
-                        "TTZToLLNuNu_M10ext1/ZZ4lAnalysis.root"),
-            dict(name = "TTZJets",filename = pathMC2018 + 
-                        "TTZJets_M10_MLMext1/ZZ4lAnalysis.root"),
+            # dict(name = "ZH125",filename = pathMC2018+
+            #             "ZH125/ZZ4lAnalysis.root"),
         ]
     elif '2022EE' in outFile:
         samples = [
@@ -244,6 +239,7 @@ def runData(outFile):
 
 if __name__ == "__main__" :
 
+    # print('Running 2018')
     # runMC('H4l_MC2018.root')
     # print('Running 2022')
     # runMC('H4l_MC2022.root')
