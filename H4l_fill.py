@@ -11,7 +11,8 @@ from ZZAnalysis.NanoAnalysis.tools import getLeptons
 
 
 pathMC2018 = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/MC2018/" # FIXME: Use 2018 MC for the time being
-pathDATA = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/Data2022/"
+pathDATA_CD = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/Data2022_CD/" # data for 2022 period
+pathDATA_EFG = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/Data2022_EFG/" # data for 2022EE period
 pathMC2022 = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231214_nano/MC2022/'
 pathMC2022EE = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231214_nano/MC2022EE/'
 
@@ -229,8 +230,12 @@ def runMC(outFile):
 def runData(outFile):
 
     of = ROOT.TFile.Open(outFile,"recreate") 
-                
-    hs_data = fillHistos("Data", pathDATA+ "/ZZ4lAnalysis.root")
+
+    if 'CD' in outFile:
+        hs_data = fillHistos("Data", pathDATA_CD + "ZZ4lAnalysis.root")
+    elif 'EFG' in outFile:
+        hs_data = fillHistos("Data", pathDATA_EFG + "ZZ4lAnalysis.root")
+        
     for h in hs_data:
         h.SetBinErrorOption(ROOT.TH1.kPoisson)
         of.WriteObject(h,h.GetName())
@@ -245,5 +250,7 @@ if __name__ == "__main__" :
     # runMC('H4l_MC2022.root')
     # print('Running 2022EE')
     # runMC('H4l_MC2022EE.root')
-    print('Running data')
-    runData('H4l_Data.root')
+    print('Running C-D data')
+    runData('H4l_Data_CD.root')
+    print('Running E-F-G data')
+    runData('H4l_Data_EFG.root')
