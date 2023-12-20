@@ -52,7 +52,7 @@ def fillHistos(samplename, filename) :
     h_Z1Mass.GetYaxis().SetTitle("Events / 2 GeV")
     # Z2
     h_Z2Mass = ROOT.TH1F("Z2Mass_2GeV_"+samplename,
-                         "Z2Mass_2GeV_"+samplename,60,0.,120.)
+                         "Z2Mass_2GeV_"+samplename,54,12.,120.)
     h_Z2Mass.GetXaxis().SetTitle("m_{#it{Z2}} (GeV)")
     h_Z2Mass.GetYaxis().SetTitle("Events / 2 GeV")
 
@@ -61,6 +61,20 @@ def fillHistos(samplename, filename) :
                      "KD_"+samplename,10,0.,1.)
     h_KD.GetXaxis().SetTitle("#it{D}_{bkg}^{kin}")
     h_KD.GetYaxis().SetTitle("Events / 0.1")
+
+    ## 2D plots
+    # Z1mass vs Z2mass
+    h2_Z1Mass_Z2Mass = ROOT.TH2F("Z1MassVsZ2Mass_"+samplename,
+                                 "Z1MassVsZ2Mass_"+samplename,
+                                 40,40.,120.,54,12.,120.)
+    h2_Z1Mass_Z2Mass.GetXaxis().SetTitle("m_{#it{Z1}} (GeV)")
+    h2_Z1Mass_Z2Mass.GetYaxis().SetTitle("m_{#it{Z2}} (GeV)")
+    # ZZMass vs KD
+    h2_ZZMass_KD = ROOT.TH2F("ZZMassVsKD_"+samplename,
+                             "ZZMassVsKD_"+samplename,
+                             65,70.,200.,10,0.,1.)
+    h2_ZZMass_KD.GetXaxis().SetTitle("m_{#it{4l}} (GeV)")
+    h2_ZZMass_KD.GetYaxis().SetTitle("#it{D}_{bkg}^{kin}")
 
 
 
@@ -133,6 +147,11 @@ def fillHistos(samplename, filename) :
             ## KD
             KD=theZZ.KD
             h_KD.Fill(KD,weight)
+
+            # 2D histo
+            h2_Z1Mass_Z2Mass.Fill(mZ1,mZ2,weight)
+            h2_ZZMass_KD.Fill(m4l,KD,weight)
+
             # Example on how to get the four leptons of the candidates, ordered as
             # [Z1l1, Z2l2, Z2l1, Z2l2]
             #leps = getLeptons(theZZ, event)
@@ -140,7 +159,10 @@ def fillHistos(samplename, filename) :
         
     f.Close()
     
-    return h_ZZMass2,h_ZZMass4,h_Z1Mass,h_Z2Mass,h_KD
+    histos = [h_ZZMass2, h_ZZMass4, h_Z1Mass, h_Z2Mass,
+              h_KD,h2_Z1Mass_Z2Mass, h2_ZZMass_KD]
+
+    return histos
 
 
 def runMC(outFile): 
@@ -235,7 +257,7 @@ def runData(outFile):
         hs_data = fillHistos("Data", pathDATA_CD + "ZZ4lAnalysis.root")
     elif 'EFG' in outFile:
         hs_data = fillHistos("Data", pathDATA_EFG + "ZZ4lAnalysis.root")
-        
+
     for h in hs_data:
         h.SetBinErrorOption(ROOT.TH1.kPoisson)
         of.WriteObject(h,h.GetName())
