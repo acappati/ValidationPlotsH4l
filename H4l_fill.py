@@ -76,6 +76,50 @@ def fillHistos(samplename, filename) :
     h2_ZZMass_KD.GetXaxis().SetTitle("m_{#it{4l}} (GeV)")
     h2_ZZMass_KD.GetYaxis().SetTitle("#it{D}_{bkg}^{kin}")
 
+    ### BLIND plots
+    ## ZZMass
+    h_ZZMass2_blind = ROOT.TH1F("ZZMass_blind_2GeV_"+samplename,
+                          "ZZMass_blind_2GeV_"+samplename,65,70.,200.)
+    h_ZZMass2_blind.GetXaxis().SetTitle("m_{#it{4l}} (GeV)")
+    h_ZZMass2_blind.GetYaxis().SetTitle("Events / 2 GeV")
+    
+    h_ZZMass4_blind = ROOT.TH1F("ZZMass_blind_4GeV_"+samplename,
+                          "ZZMass_blind_4GeV_"+samplename,233,70.,1002.)
+    h_ZZMass4_blind.GetXaxis().SetTitle("m_{#it{4l}} (GeV)")
+    h_ZZMass4_blind.GetYaxis().SetTitle("Events / 4 GeV")
+
+    ## Z1 and Z2 masses
+    # Z1
+    h_Z1Mass_blind = ROOT.TH1F("Z1Mass_blind_2GeV_"+samplename,
+                         "Z1Mass_blind_2GeV_"+samplename,40,40.,120.)
+    h_Z1Mass_blind.GetXaxis().SetTitle("m_{#it{Z1}} (GeV)")
+    h_Z1Mass_blind.GetYaxis().SetTitle("Events / 2 GeV")
+    # Z2
+    h_Z2Mass_blind = ROOT.TH1F("Z2Mass_blind_2GeV_"+samplename,
+                         "Z2Mass_blind_2GeV_"+samplename,54,12.,120.)
+    h_Z2Mass_blind.GetXaxis().SetTitle("m_{#it{Z2}} (GeV)")
+    h_Z2Mass_blind.GetYaxis().SetTitle("Events / 2 GeV")
+
+    ## KD
+    h_KD_blind = ROOT.TH1F("KD_blind_"+samplename,
+                     "KD_blind_"+samplename,10,0.,1.)
+    h_KD_blind.GetXaxis().SetTitle("#it{D}_{bkg}^{kin}")
+    h_KD_blind.GetYaxis().SetTitle("Events / 0.1")
+
+    ## 2D plots
+    # Z1mass vs Z2mass
+    h2_Z1Mass_Z2Mass_blind = ROOT.TH2F("Z1MassVsZ2Mass_blind_"+samplename,
+                                 "Z1MassVsZ2Mass_blind_"+samplename,
+                                 40,40.,120.,54,12.,120.)
+    h2_Z1Mass_Z2Mass_blind.GetXaxis().SetTitle("m_{#it{Z1}} (GeV)")
+    h2_Z1Mass_Z2Mass_blind.GetYaxis().SetTitle("m_{#it{Z2}} (GeV)")
+    # ZZMass vs KD
+    h2_ZZMass_KD_blind = ROOT.TH2F("ZZMassVsKD_blind_"+samplename,
+                             "ZZMassVsKD_blind_"+samplename,
+                             65,70.,200.,10,0.,1.)
+    h2_ZZMass_KD_blind.GetXaxis().SetTitle("m_{#it{4l}} (GeV)")
+    h2_ZZMass_KD_blind.GetYaxis().SetTitle("#it{D}_{bkg}^{kin}")
+
 
 
     f = ROOT.TFile.Open(filename)
@@ -152,6 +196,14 @@ def fillHistos(samplename, filename) :
             h2_Z1Mass_Z2Mass.Fill(mZ1,mZ2,weight)
             h2_ZZMass_KD.Fill(m4l,KD,weight)
 
+            ### BLIND plots
+            if m4l < 105. or m4l > 130.:
+                h_Z1Mass_blind.Fill(mZ1,weight)
+                h_Z2Mass_blind.Fill(mZ2,weight)
+                h_KD_blind.Fill(KD,weight)
+                h2_Z1Mass_Z2Mass_blind.Fill(mZ1,mZ2,weight)
+                h2_ZZMass_KD_blind.Fill(m4l,KD,weight)
+
             # Example on how to get the four leptons of the candidates, ordered as
             # [Z1l1, Z2l2, Z2l1, Z2l2]
             #leps = getLeptons(theZZ, event)
@@ -159,8 +211,11 @@ def fillHistos(samplename, filename) :
         
     f.Close()
     
-    histos = [h_ZZMass2, h_ZZMass4, h_Z1Mass, h_Z2Mass,
-              h_KD,h2_Z1Mass_Z2Mass, h2_ZZMass_KD]
+    histos = [h_ZZMass2, h_ZZMass4, 
+              h_Z1Mass, h_Z2Mass, h_KD, 
+              h2_Z1Mass_Z2Mass, h2_ZZMass_KD,
+              h_Z1Mass_blind, h_Z2Mass_blind, h_KD_blind, 
+              h2_Z1Mass_Z2Mass_blind, h2_ZZMass_KD_blind]
 
     return histos
 
