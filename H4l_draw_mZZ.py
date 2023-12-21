@@ -2,9 +2,8 @@
 # This is just a quick example, for illustration purposes only!!!
 # It lacks all the plots and features of the full miniAOD plotter.
 #
-# run from the python prompt:
-# from past.builtins import execfile
-# execfile("H4l_draw.py")
+# run 
+# python3 H4l_draw_mZZ.py
 
 from __future__ import print_function
 import math
@@ -18,7 +17,8 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 inFilenameMC2018 = "H4l_MC2018.root"
 inFilenameMC2022 = 'H4l_MC2022.root'
 inFilenameMC2022EE = 'H4l_MC2022EE.root'
-inFilenameData = "H4l_Data.root"
+inFilenameData = "H4l_Data_CD.root"
+inFilenameData = "H4l_Data_EFG.root"
 outFilename = "Plots.root"
 
 ### 2018 plots
@@ -28,7 +28,7 @@ outFilename = "Plots.root"
 
 blindPlots = True
 blindHLow = 105.
-blindHHi  = 140.
+blindHHi  = 130.
 blindHM   = 500.
 epsilon=0.1
 addEmptyBins = True
