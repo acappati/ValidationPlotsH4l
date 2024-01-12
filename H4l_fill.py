@@ -420,19 +420,19 @@ def fillHistos(samplename, filename) :
             h_ZZMass2.Fill(m4l,weight)
             h_ZZMass4.Fill(m4l,weight)
             # h_ZZMass10.Fill(m4l,weight)
-            ## Z1Mass
-            mZ1=theZZ.Z1mass
-            h_Z1Mass.Fill(mZ1,weight)
-            ## Z2Mass
-            mZ2=theZZ.Z2mass
-            h_Z2Mass.Fill(mZ2,weight)
-            ## KD
-            KD=theZZ.KD
-            h_KD.Fill(KD,weight)
+            # ## Z1Mass
+            # mZ1=theZZ.Z1mass
+            # h_Z1Mass.Fill(mZ1,weight)
+            # ## Z2Mass
+            # mZ2=theZZ.Z2mass
+            # h_Z2Mass.Fill(mZ2,weight)
+            # ## KD
+            # KD=theZZ.KD
+            # h_KD.Fill(KD,weight)
 
-            # 2D histo
-            h2_Z1Mass_Z2Mass.Fill(mZ1,mZ2,weight)
-            h2_ZZMass_KD.Fill(m4l,KD,weight)
+            # # 2D histo
+            # h2_Z1Mass_Z2Mass.Fill(mZ1,mZ2,weight)
+            # h2_ZZMass_KD.Fill(m4l,KD,weight)
 
             # plots per final state
             Z1flav = theZZ.Z1flav
@@ -440,62 +440,62 @@ def fillHistos(samplename, filename) :
             if(Z1flav==-169 and Z2flav==-169):
                 h_ZZMass2_4mu.Fill(m4l,weight)
                 h_ZZMass4_4mu.Fill(m4l,weight)
-                h_Z1Mass_4mu.Fill(mZ1,weight)
-                h_Z2Mass_4mu.Fill(mZ2,weight)
-                h_KD_4mu.Fill(KD,weight)
-                h2_Z1Mass_Z2Mass_4mu.Fill(mZ1,mZ2,weight)
-                h2_ZZMass_KD_4mu.Fill(m4l,KD,weight)
+                # h_Z1Mass_4mu.Fill(mZ1,weight)
+                # h_Z2Mass_4mu.Fill(mZ2,weight)
+                # h_KD_4mu.Fill(KD,weight)
+                # h2_Z1Mass_Z2Mass_4mu.Fill(mZ1,mZ2,weight)
+                # h2_ZZMass_KD_4mu.Fill(m4l,KD,weight)
             elif(Z1flav==-121 and Z2flav==-121):
                 h_ZZMass2_4e.Fill(m4l,weight)
                 h_ZZMass4_4e.Fill(m4l,weight)
-                h_Z1Mass_4e.Fill(mZ1,weight)
-                h_Z2Mass_4e.Fill(mZ2,weight)
-                h_KD_4e.Fill(KD,weight)
-                h2_Z1Mass_Z2Mass_4e.Fill(mZ1,mZ2,weight)
-                h2_ZZMass_KD_4e.Fill(m4l,KD,weight) 
+                # h_Z1Mass_4e.Fill(mZ1,weight)
+                # h_Z2Mass_4e.Fill(mZ2,weight)
+                # h_KD_4e.Fill(KD,weight)
+                # h2_Z1Mass_Z2Mass_4e.Fill(mZ1,mZ2,weight)
+                # h2_ZZMass_KD_4e.Fill(m4l,KD,weight) 
             elif((Z1flav==-169 and Z2flav==-121) or 
                  (Z1flav==-121 and Z2flav==-169)):
                 h_ZZMass2_2e2mu.Fill(m4l,weight)
                 h_ZZMass4_2e2mu.Fill(m4l,weight)
-                h_Z1Mass_2e2mu.Fill(mZ1,weight)
-                h_Z2Mass_2e2mu.Fill(mZ2,weight)
-                h_KD_2e2mu.Fill(KD,weight)
-                h2_Z1Mass_Z2Mass_2e2mu.Fill(mZ1,mZ2,weight)
-                h2_ZZMass_KD_2e2mu.Fill(m4l,KD,weight) 
+                # h_Z1Mass_2e2mu.Fill(mZ1,weight)
+                # h_Z2Mass_2e2mu.Fill(mZ2,weight)
+                # h_KD_2e2mu.Fill(KD,weight)
+                # h2_Z1Mass_Z2Mass_2e2mu.Fill(mZ1,mZ2,weight)
+                # h2_ZZMass_KD_2e2mu.Fill(m4l,KD,weight) 
             else:
                 print('error in Zflav ',Z1flav,Z2flav)
 
 
-            ### BLIND plots
-            if m4l < 105. or m4l > 130.:
-                h_Z1Mass_blind.Fill(mZ1,weight)
-                h_Z2Mass_blind.Fill(mZ2,weight)
-                h_KD_blind.Fill(KD,weight)
-                h2_Z1Mass_Z2Mass_blind.Fill(mZ1,mZ2,weight)
-                h2_ZZMass_KD_blind.Fill(m4l,KD,weight)
+            # ### BLIND plots
+            # if m4l < 105. or m4l > 140.:
+            #     h_Z1Mass_blind.Fill(mZ1,weight)
+            #     h_Z2Mass_blind.Fill(mZ2,weight)
+            #     h_KD_blind.Fill(KD,weight)
+            #     h2_Z1Mass_Z2Mass_blind.Fill(mZ1,mZ2,weight)
+            #     h2_ZZMass_KD_blind.Fill(m4l,KD,weight)
 
-                # plots per final state
-                if(Z1flav==-169 and Z2flav==-169):
-                    h_Z1Mass_blind_4mu.Fill(mZ1,weight)
-                    h_Z2Mass_blind_4mu.Fill(mZ2,weight)
-                    h_KD_blind_4mu.Fill(KD,weight)
-                    h2_Z1Mass_Z2Mass_blind_4mu.Fill(mZ1,mZ2,weight)
-                    h2_ZZMass_KD_blind_4mu.Fill(m4l,KD,weight)
-                elif(Z1flav==-121 and Z2flav==-121):
-                    h_Z1Mass_blind_4e.Fill(mZ1,weight)
-                    h_Z2Mass_blind_4e.Fill(mZ2,weight)
-                    h_KD_blind_4e.Fill(KD,weight)
-                    h2_Z1Mass_Z2Mass_blind_4e.Fill(mZ1,mZ2,weight)
-                    h2_ZZMass_KD_blind_4e.Fill(m4l,KD,weight) 
-                elif((Z1flav==-169 and Z2flav==-121) or 
-                     (Z1flav==-121 and Z2flav==-169)):
-                    h_Z1Mass_blind_2e2mu.Fill(mZ1,weight)
-                    h_Z2Mass_blind_2e2mu.Fill(mZ2,weight)
-                    h_KD_blind_2e2mu.Fill(KD,weight)
-                    h2_Z1Mass_Z2Mass_blind_2e2mu.Fill(mZ1,mZ2,weight)
-                    h2_ZZMass_KD_blind_2e2mu.Fill(m4l,KD,weight) 
-                else:
-                    print('error in Zflav ',Z1flav,Z2flav)
+            #     # plots per final state
+            #     if(Z1flav==-169 and Z2flav==-169):
+            #         h_Z1Mass_blind_4mu.Fill(mZ1,weight)
+            #         h_Z2Mass_blind_4mu.Fill(mZ2,weight)
+            #         h_KD_blind_4mu.Fill(KD,weight)
+            #         h2_Z1Mass_Z2Mass_blind_4mu.Fill(mZ1,mZ2,weight)
+            #         h2_ZZMass_KD_blind_4mu.Fill(m4l,KD,weight)
+            #     elif(Z1flav==-121 and Z2flav==-121):
+            #         h_Z1Mass_blind_4e.Fill(mZ1,weight)
+            #         h_Z2Mass_blind_4e.Fill(mZ2,weight)
+            #         h_KD_blind_4e.Fill(KD,weight)
+            #         h2_Z1Mass_Z2Mass_blind_4e.Fill(mZ1,mZ2,weight)
+            #         h2_ZZMass_KD_blind_4e.Fill(m4l,KD,weight) 
+            #     elif((Z1flav==-169 and Z2flav==-121) or 
+            #          (Z1flav==-121 and Z2flav==-169)):
+            #         h_Z1Mass_blind_2e2mu.Fill(mZ1,weight)
+            #         h_Z2Mass_blind_2e2mu.Fill(mZ2,weight)
+            #         h_KD_blind_2e2mu.Fill(KD,weight)
+            #         h2_Z1Mass_Z2Mass_blind_2e2mu.Fill(mZ1,mZ2,weight)
+            #         h2_ZZMass_KD_blind_2e2mu.Fill(m4l,KD,weight) 
+            #     else:
+            #         print('error in Zflav ',Z1flav,Z2flav)
 
             # Example on how to get the four leptons of the candidates, ordered as
             # [Z1l1, Z2l2, Z2l1, Z2l2]
@@ -506,16 +506,16 @@ def fillHistos(samplename, filename) :
     
     histos = [h_ZZMass2, h_ZZMass2_4mu, h_ZZMass2_4e, h_ZZMass2_2e2mu,
               h_ZZMass4, h_ZZMass4_4mu, h_ZZMass4_4e, h_ZZMass4_2e2mu,
-              h_Z1Mass, h_Z1Mass_4mu, h_Z1Mass_4e, h_Z1Mass_2e2mu,
-              h_Z2Mass, h_Z2Mass_4mu, h_Z2Mass_4e, h_Z2Mass_2e2mu,  
-              h_KD, h_KD_4mu, h_KD_4e, h_KD_2e2mu, 
-              h2_Z1Mass_Z2Mass, h2_Z1Mass_Z2Mass_4mu, h2_Z1Mass_Z2Mass_4e, h2_Z1Mass_Z2Mass_2e2mu,
-              h2_ZZMass_KD, h2_ZZMass_KD_4mu, h2_ZZMass_KD_4e, h2_ZZMass_KD_2e2mu,
-              h_Z1Mass_blind, h_Z1Mass_blind_4mu, h_Z1Mass_blind_4e, h_Z1Mass_blind_2e2mu,
-              h_Z2Mass_blind, h_Z2Mass_blind_4mu, h_Z2Mass_blind_4e, h_Z2Mass_blind_2e2mu,
-              h_KD_blind, h_KD_blind_4mu, h_KD_blind_4e, h_KD_blind_2e2mu,
-              h2_Z1Mass_Z2Mass_blind, h2_Z1Mass_Z2Mass_blind_4mu, h2_Z1Mass_Z2Mass_blind_4e, h2_Z1Mass_Z2Mass_blind_2e2mu,
-              h2_ZZMass_KD_blind, h2_ZZMass_KD_blind_4mu, h2_ZZMass_KD_blind_4e, h2_ZZMass_KD_blind_2e2mu
+              # h_Z1Mass, h_Z1Mass_4mu, h_Z1Mass_4e, h_Z1Mass_2e2mu,
+              # h_Z2Mass, h_Z2Mass_4mu, h_Z2Mass_4e, h_Z2Mass_2e2mu,  
+              # h_KD, h_KD_4mu, h_KD_4e, h_KD_2e2mu, 
+              # h2_Z1Mass_Z2Mass, h2_Z1Mass_Z2Mass_4mu, h2_Z1Mass_Z2Mass_4e, h2_Z1Mass_Z2Mass_2e2mu,
+              # h2_ZZMass_KD, h2_ZZMass_KD_4mu, h2_ZZMass_KD_4e, h2_ZZMass_KD_2e2mu,
+              # h_Z1Mass_blind, h_Z1Mass_blind_4mu, h_Z1Mass_blind_4e, h_Z1Mass_blind_2e2mu,
+              # h_Z2Mass_blind, h_Z2Mass_blind_4mu, h_Z2Mass_blind_4e, h_Z2Mass_blind_2e2mu,
+              # h_KD_blind, h_KD_blind_4mu, h_KD_blind_4e, h_KD_blind_2e2mu,
+              # h2_Z1Mass_Z2Mass_blind, h2_Z1Mass_Z2Mass_blind_4mu, h2_Z1Mass_Z2Mass_blind_4e, h2_Z1Mass_Z2Mass_blind_2e2mu,
+              # h2_ZZMass_KD_blind, h2_ZZMass_KD_blind_4mu, h2_ZZMass_KD_blind_4e, h2_ZZMass_KD_blind_2e2mu
               ]
 
     return histos
@@ -538,9 +538,6 @@ def runMC(outFile):
                         "ggTo2e2tau_Contin_MCFM701/ZZ4lAnalysis.root"),
             dict(name = "ggTo2mu2tau",filename = pathMC2018+
                         "ggTo2mu2tau_Contin_MCFM701/ZZ4lAnalysis.root"),
-
-            # dict(name = "ZH125",filename = pathMC2018+
-            #             "ZH125/ZZ4lAnalysis.root"),
         ]
     elif '2022EE' in outFile:
         samples = [
@@ -552,18 +549,26 @@ def runMC(outFile):
                         "WplusH125/ZZ4lAnalysis.root"),
             dict(name = "WHminus125",filename = pathMC2022EE+
                         "WHminus125/ZZ4lAnalysis.root"),
+            dict(name = "ZH125",filename = pathMC2022EE+
+                        "ZH125/ZZ4lAnalysis.root"),
             dict(name = "ttH125",filename = pathMC2022EE+
                         "ttH125/ZZ4lAnalysis.root"),
-
+            dict(name = "bbH125",filename = pathMC2022EE+
+                        "bbH125/ZZ4lAnalysis.root"),
+            
             dict(name = "ZZTo4l",filename = pathMC2022EE+
                         "ZZTo4l/ZZ4lAnalysis.root"),
 
             dict(name = "WWZ",filename = pathMC2022EE+
                         "WWZ/ZZ4lAnalysis.root"),
+            dict(name = "WZZ",filename = pathMC2022EE+
+                        "WZZ/ZZ4lAnalysis.root"),
             dict(name = "ZZZ",filename = pathMC2022EE+
                         "ZZZ/ZZ4lAnalysis.root"),
             dict(name = "TTWW",filename = pathMC2022EE+
                         "TTWW/ZZ4lAnalysis.root"),
+            dict(name = "TTZZ",filename = pathMC2022EE+
+                        "TTZZ/ZZ4lAnalysis.root"),
         ]
     elif '2022' in outFile:
         samples = [
@@ -575,6 +580,8 @@ def runMC(outFile):
                         "WplusH125/ZZ4lAnalysis.root"),
             dict(name = "WHminus125",filename = pathMC2022+
                         "WHminus125/ZZ4lAnalysis.root"),
+            dict(name = "ZH125",filename = pathMC2022+
+                        "ZH125/ZZ4lAnalysis.root"),
             dict(name = "ttH125",filename = pathMC2022+
                         "ttH125/ZZ4lAnalysis.root"),
             dict(name = "bbH125",filename = pathMC2022+
