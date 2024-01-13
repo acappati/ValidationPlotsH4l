@@ -14,11 +14,11 @@ import numpy as np
 from array import array
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-inFilenameMC2018 = "H4l_MC2018.root"
-inFilenameMC2022 = 'H4l_MC2022.root'
+inFilenameMC2018   = "H4l_MC2018.root"
+inFilenameMC2022   = 'H4l_MC2022.root'
 inFilenameMC2022EE = 'H4l_MC2022EE.root'
-inFilenameData = "H4l_Data_CD.root"
-inFilenameData = "H4l_Data_EFG.root"
+inFilenameData     = "H4l_Data_CD.root"
+inFilenameData     = "H4l_Data_EFG.root"
 outFilename = "Plots.root"
 
 ### 2018 plots
@@ -26,15 +26,57 @@ outFilename = "Plots.root"
 #pathMC = "/eos/user/n/namapane/H4lnano/220420/"
 #pathDATA = "/eos/user/n/namapane/H4lnano/220420/Data2018/"
 
+### 2022 plots
+if(period == 'full_2022'):
+    lumi = 35.08424 # 1/fb 2022 C-G  (= 35.181930231/fb of full 355100_362760 Golden json - 0.097685694 of eraB that we don't use
+    lumiText = '35.1 fb-1'
+### 2022 C-D
+elif(period == 'CD_2022'):
+    lumi = 8.077 # 1/fb
+    lumiText = '8.1 fb-1'
+### 2022EE E-F-G
+elif(period == 'EFG_2022'):
+    lumi = 27.007 # 1/fb
+    lumiText = '27.0 fb-1'
+else:
+    raise ValueError('Error: define data-taking period!')
+
+# plots options
 blindPlots = True
 blindHLow = 105.
-blindHHi  = 130.
+blindHHi  = 140.
 blindHM   = 500.
 epsilon=0.1
 addEmptyBins = True
 
-#ZX estaimation parameters - taken from 2018 data - approx. normalization, just for visualization purposes
 
+# Set style matching the one used for HZZ plots
+ROOT.TH1.SetDefaultSumw2()
+ROOT.gStyle.SetErrorX(0)
+ROOT.gStyle.SetPadTopMargin(0.05)  
+ROOT.gStyle.SetPadBottomMargin(0.13)
+ROOT.gStyle.SetPadLeftMargin(0.16) 
+ROOT.gStyle.SetPadRightMargin(0.03)
+ROOT.gStyle.SetLabelOffset(0.008, "XYZ")
+ROOT.gStyle.SetLabelSize(0.04, "XYZ")
+ROOT.gStyle.SetAxisColor(1, "XYZ")
+ROOT.gStyle.SetStripDecimals(True)
+ROOT.gStyle.SetTickLength(0.03, "XYZ")
+ROOT.gStyle.SetNdivisions(510, "XYZ")
+ROOT.gStyle.SetPadTickX(1)
+ROOT.gStyle.SetPadTickY(1)
+ROOT.gStyle.SetTitleSize(0.05, "XYZ")
+ROOT.gStyle.SetTitleOffset(1.00, "X")
+ROOT.gStyle.SetTitleOffset(1.25, "Y")
+ROOT.gStyle.SetLabelOffset(0.008, "XYZ")
+ROOT.gStyle.SetLabelSize(0.04, "XYZ")
+
+canvasSizeX=910
+canvasSizeY=700
+
+
+
+#ZX estaimation parameters - taken from 2018 data - approx. normalization, just for visualization purposes
 def getZX(h_model) :
     n_entries = 10000
     bin_down  = 70.
@@ -73,44 +115,7 @@ def getZX(h_model) :
     h_total.Add(h_2e2mu)
     print("Z+X integral", h_total.Integral())
     return h_total
-    
 
-### 2022 plots
-Lum = 35.08424 # 1/fb 2022 C-G  (= 35.181930231/fb of full 355100_362760 Golden json - 0.097685694 of eraB that we don't use
-lumiText = '35.1 fb-1'
-#Lum = 21.1289 # 1/fb 2022 F-G Golden json (prompt v11)
-### 2022 C-D
-Lum_CD = 8.077 # 1/fb
-# lumiText = '8.1 fb-1'
-### 2022EE E-G
-Lum_EFG = 27.007 # 1/fb
-# lumiText = '27.0 fb-1' 
-
-
-
-# Set style matching the one used for HZZ plots
-ROOT.TH1.SetDefaultSumw2()
-ROOT.gStyle.SetErrorX(0)
-ROOT.gStyle.SetPadTopMargin(0.05)  
-ROOT.gStyle.SetPadBottomMargin(0.13)
-ROOT.gStyle.SetPadLeftMargin(0.16) 
-ROOT.gStyle.SetPadRightMargin(0.03)
-ROOT.gStyle.SetLabelOffset(0.008, "XYZ")
-ROOT.gStyle.SetLabelSize(0.04, "XYZ")
-ROOT.gStyle.SetAxisColor(1, "XYZ")
-ROOT.gStyle.SetStripDecimals(True)
-ROOT.gStyle.SetTickLength(0.03, "XYZ")
-ROOT.gStyle.SetNdivisions(510, "XYZ")
-ROOT.gStyle.SetPadTickX(1)
-ROOT.gStyle.SetPadTickY(1)
-ROOT.gStyle.SetTitleSize(0.05, "XYZ")
-ROOT.gStyle.SetTitleOffset(1.00, "X")
-ROOT.gStyle.SetTitleOffset(1.25, "Y")
-ROOT.gStyle.SetLabelOffset(0.008, "XYZ")
-ROOT.gStyle.SetLabelSize(0.04, "XYZ")
-
-canvasSizeX=910
-canvasSizeY=700
 
 #####################
 def printCanvases(type="png", path=".") :
