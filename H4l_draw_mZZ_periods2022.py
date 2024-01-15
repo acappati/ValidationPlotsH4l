@@ -68,7 +68,7 @@ canvasSizeY=700
 
 
 #ZX estaimation parameters - taken from 2018 data - approx. normalization, just for visualization purposes
-def getZX(h_model) :
+def getZX(h_model, finalState) :
     n_entries = 10000
     bin_down  = 70.
     bin_up    = 3000.
@@ -101,9 +101,20 @@ def getZX(h_model) :
     h_2e2mu.Scale(yield_Comb_2e2mu_2018/h_2e2mu.Integral())
     
 
-    h_total=h_4e.Clone("ZX_tot")
-    h_total.Add(h_4mu)
-    h_total.Add(h_2e2mu)
+    if(finalState == 'fs_4e'):
+        h_total = h_4e
+    elif(finalState == 'fs_4mu'):
+        h_total = h_4mu
+    elif(finalState == 'fs_2e2mu'):
+        h_total = h_2e2mu
+    elif(finalState == 'fs_4l'):
+        h_total=h_4e.Clone("ZX_tot")
+        h_total.Add(h_4mu)
+        h_total.Add(h_2e2mu)
+    else:
+        raise ValueError('Error: wrong final state!')
+
+    print('Final State:', finalState)
     print("Z+X integral", h_total.Integral())
     return h_total
 
@@ -123,15 +134,24 @@ def printCanvas(c, type="png", name=None, path="." ) :
 
 
 ######################
-def Stack(f2018, f2022, period, version = "_4GeV_"):
-    name = "ZZMass" + version
-
-    if(period == '2022CD'):
-        lumi = lumi_CD
-    elif(period == '2022EFG'):
-        lumi = lumi_EFG
+def Stack(f2018, f2022, lumi, version = "_4GeV_", finalState = 'fs_4l'):
+    
+    # final state
+    if(finalState == 'fs_4e'):
+        fs_string = '4e_'
+    elif(finalState == 'fs_4mu'):
+        fs_string = '4mu_'
+    elif(finalState == 'fs_2e2mu'):
+        fs_string = '2e2mu_'
+    elif(finalState == 'fs_4l'):
+        fs_string = ''
     else:
-        raise ValueError('Error: wrong data-taking period!')
+        raise ValueError('Error: wrong final state!')
+
+    # define histo name
+    name = "ZZMass" + version + fs_string
+    print('hist name: ', name)
+
     
     #------------EW------------------#
     WWZ  = f2022.Get(name+"WWZ")
@@ -194,7 +214,7 @@ def Stack(f2018, f2022, period, version = "_4GeV_"):
     
     ### ZX
     # from 2018 for now
-    hzx=getZX(signal)
+    hzx=getZX(signal, finalState)
     hzx.Scale(lumi*1000.)
     hzx.SetLineColor(ROOT.TColor.GetColor("#003300"))
     hzx.SetFillColor(ROOT.TColor.GetColor("#669966"))
@@ -218,8 +238,23 @@ def Stack(f2018, f2022, period, version = "_4GeV_"):
 
 
 ### Get a TGraph for data, blinded if required
-def dataGraph (f, version = "_4GeV_", blind = True):
-    name = "ZZMass"+ version
+def dataGraph (f, version = "_4GeV_", finalState = 'fs_4l', blind = True):
+
+    # final state
+    if(finalState == 'fs_4e'):
+        fs_string = '4e_'
+    elif(finalState == 'fs_4mu'):
+        fs_string = '4mu_'
+    elif(finalState == 'fs_2e2mu'):
+        fs_string = '2e2mu_'
+    elif(finalState == 'fs_4l'):
+        fs_string = ''
+    else:
+        raise ValueError('Error: wrong final state!')
+
+    # define histo name
+    name = "ZZMass"+ version + fs_string
+    print(name)
     hd = f.Get(name+"Data")
     
     nbinsIn = hd.GetNbinsX()
@@ -270,122 +305,131 @@ if __name__ == "__main__" :
         xlabels[i].SetTextFont(42)
         xlabels[i].SetTextSize(0.04)
 
+    ## --- plots     
+    periods = ['2022CD', '2022EFG']
+    finalStates = ['fs_4e', 'fs_4mu', 'fs_2e2mu', 'fs_4l']
+    for p in periods:
+        for fs in finalStates:
+            print(p, fs)
+            
+            if(p == '2022CD'):
+                fMC_2 = fMC2022
+                fData = fData2022
+                lumi = lumi_CD
+                lumiText = '8.1 fb-1'
+            elif(p == '2022EFG'):
+                fMC_2 = fMC2022EE
+                fData = fData2022EE
+                lumi = lumi_EFG
+                lumiText = '27.0 fb-1'
+            else:
+                raise ValueError('Error: wrong data-taking period!')
 
-    ## --- 2022 CD m4l plot
-    HStack, h_list = Stack(fMC2018, fMC2022, '2022CD')
-    HData = dataGraph(fData2022, blind=blindPlots)
-    HStack_hm = HStack.Clone()
-    HData_hm = HData.Clone()
+            ### m4l plot - full range
+            HStack, h_list = Stack(fMC2018, fMC_2, lumi, '_4GeV_', fs)
+            HData = dataGraph(fData, '_4GeV_', fs, blind=blindPlots)
+            HStack_hm = HStack.Clone()
+            HData_hm = HData.Clone()
+          
+            Canvas = ROOT.TCanvas('M4l_'+p+'_'+fs,'M4l_'+p+'_'+fs, canvasSizeX,canvasSizeY)
+            Canvas.SetTicks()
+            Canvas.SetLogx()
+            #ymaxd=HData.GetMaximum()
+            xmin=ctypes.c_double(0.)
+            ymin=ctypes.c_double(0.)
+            xmax=ctypes.c_double(0.)
+            ymax=ctypes.c_double(0.)
+            HData.ComputeRange(xmin,ymin,xmax,ymax)
+            yhmax=math.ceil(max(HStack.GetMaximum(), ymax.value))
+            HStack.SetMaximum(yhmax)
+            HStack.Draw("histo")
+            HStack.GetXaxis().SetRangeUser(70., 300.)
+            if blindPlots:
+                ROOT.gPad.GetRangeAxis(xmin,ymin,xmax,ymax)
+                bblind = ROOT.TBox(blindHLow, 0, blindHHi, ymax.value-epsilon)
+                bblind.SetFillColor(ROOT.kGray)
+                bblind.SetFillStyle(3002)
+                bblind.Draw()
+            HData.Draw("samePE1")
+            # Hide labels and rewrite them
+            HStack.GetXaxis().SetLabelSize(0)
+            for label in xlabels :
+                label.Draw()
+            ROOT.gPad.RedrawAxis()
+        
+            legend = ROOT.TLegend(0.72,0.70,0.94,0.92)
+            legend.AddEntry(h_list[4],"H(125)","f")
+            legend.AddEntry(h_list[3],"q#bar{q}#rightarrow ZZ,Z#gamma*","f")
+            legend.AddEntry(h_list[2],"gg#rightarrow ZZ,Z#gamma*","f")
+            legend.AddEntry(h_list[1],"EW","f")
+            legend.AddEntry(h_list[0],"Z+X","f")
+            legend.AddEntry(HData,"Data", "p")
+            legend.SetFillColor(ROOT.kWhite)
+            legend.SetLineColor(ROOT.kWhite)
+            legend.SetTextFont(43)
+            legend.SetTextSize(20)
+            legend.Draw()
+        
+            #draw CMS and lumi text
+            CMS_lumi.writeExtraText = True
+            CMS_lumi.extraText      = "Preliminary"
+            CMS_lumi.lumi_sqrtS     = lumiText + " (13.6 TeV)"
+            CMS_lumi.cmsTextSize    = 1 #0.6
+            CMS_lumi.lumiTextSize   = 0.7 #0.46
+            CMS_lumi.extraOverCmsTextSize = 0.75
+            CMS_lumi.relPosX = 0.12
+            CMS_lumi.CMS_lumi(Canvas, 0, 0)
+            
+            Canvas.Update() #very important!!!
+            #Canvas.Write()
 
-    Canvas = ROOT.TCanvas("M4l_2022CD","M4l_2022CD",canvasSizeX,canvasSizeY)
-    Canvas.SetTicks()
-    Canvas.SetLogx()
-    #ymaxd=HData.GetMaximum()
-    xmin=ctypes.c_double(0.)
-    ymin=ctypes.c_double(0.)
-    xmax=ctypes.c_double(0.)
-    ymax=ctypes.c_double(0.)
-    HData.ComputeRange(xmin,ymin,xmax,ymax)
-    yhmax=math.ceil(max(HStack.GetMaximum(), ymax.value))
-    HStack.SetMaximum(yhmax)
-    HStack.Draw("histo")
-    HStack.GetXaxis().SetRangeUser(70., 300.)
-    if blindPlots:
-         ROOT.gPad.GetRangeAxis(xmin,ymin,xmax,ymax)
-         bblind = ROOT.TBox(blindHLow, 0, blindHHi, ymax.value-epsilon)
-         bblind.SetFillColor(ROOT.kGray)
-         bblind.SetFillStyle(3002)
-         bblind.Draw()
-    HData.Draw("samePE1")
-    # Hide labels and rewrite them
-    HStack.GetXaxis().SetLabelSize(0)
-    for label in xlabels :
-        label.Draw()
-    ROOT.gPad.RedrawAxis()
 
-    legend = ROOT.TLegend(0.72,0.70,0.94,0.92)
-    legend.AddEntry(h_list[4],"H(125)","f")
-    legend.AddEntry(h_list[3],"q#bar{q}#rightarrow ZZ,Z#gamma*","f")
-    legend.AddEntry(h_list[2],"gg#rightarrow ZZ,Z#gamma*","f")
-    legend.AddEntry(h_list[1],"EW","f")
-    legend.AddEntry(h_list[0],"Z+X","f")
-    legend.AddEntry(HData,"Data", "p")
-    legend.SetFillColor(ROOT.kWhite)
-    legend.SetLineColor(ROOT.kWhite)
-    legend.SetTextFont(43)
-    legend.SetTextSize(20)
-    legend.Draw()
-
-    #draw CMS and lumi text
-    CMS_lumi.writeExtraText = True
-    CMS_lumi.extraText      = "Preliminary"
-    CMS_lumi.lumi_sqrtS     = "8.1 fb-1 (13.6 TeV)"
-    CMS_lumi.cmsTextSize    = 1 #0.6
-    CMS_lumi.lumiTextSize   = 0.7 #0.46
-    CMS_lumi.extraOverCmsTextSize = 0.75
-    CMS_lumi.relPosX = 0.12
-    CMS_lumi.CMS_lumi(Canvas, 0, 0)
+            ### Zoomed m4l
+            HStack_z, h_list = Stack(fMC2018, fMC_2, lumi, "_2GeV_", fs)
+            HData_z = dataGraph(fData2022, "_2GeV_", fs, blind=blindPlots)
+            Canvas_z = ROOT.TCanvas('M4l_z_'+p+'_'+fs,'M4l_z_'+p+'_'+fs,canvasSizeX,canvasSizeY)
+            Canvas_z.SetTicks()
+            HData_z.ComputeRange(xmin,ymin,xmax,ymax)
+            yhmax=math.ceil(max(HStack_z.GetMaximum(), ymax.value))
+            HStack_z.SetMaximum(yhmax)
+            HStack_z.Draw("histo")
+            HStack_z.GetXaxis().SetRangeUser(70., 170.)
+            if blindPlots:
+                 ROOT.gPad.GetRangeAxis(xmin,ymin,xmax,ymax)
+                 bblind_z = ROOT.TBox(blindHLow, 0, blindHHi, ymax.value-epsilon)
+                 bblind_z.SetFillColor(ROOT.kGray)
+                 bblind_z.SetFillStyle(3002)
+                 bblind_z.Draw()
+            HData_z.Draw("samePE1")
+            ROOT.gPad.RedrawAxis()
+            
+            legend_z = ROOT.TLegend(0.72,0.70,0.94,0.92)
+            legend_z.AddEntry(h_list[4],"H(125)","f")
+            legend_z.AddEntry(h_list[3],"q#bar{q}#rightarrow ZZ,Z#gamma*","f")
+            legend_z.AddEntry(h_list[2],"gg#rightarrow ZZ,Z#gamma*","f")
+            legend_z.AddEntry(h_list[1],"EW","f")
+            legend_z.AddEntry(h_list[0],"Z+X","f")
+            legend_z.AddEntry(HData,"Data", "p")
+            legend_z.SetFillColor(ROOT.kWhite)
+            legend_z.SetLineColor(ROOT.kWhite)
+            legend_z.SetTextFont(43)
+            legend_z.SetTextSize(20)
+            legend_z.Draw()
+            
+            #draw CMS and lumi text
+            CMS_lumi.writeExtraText = True
+            CMS_lumi.extraText      = "Preliminary"
+            CMS_lumi.lumi_sqrtS     = lumiText + " (13.6 TeV)"
+            CMS_lumi.cmsTextSize    = 1 #0.6
+            CMS_lumi.lumiTextSize   = 0.7 #0.46
+            CMS_lumi.extraOverCmsTextSize = 0.75
+            CMS_lumi.relPosX = 0.12
+            CMS_lumi.CMS_lumi(Canvas_z, 0, 0)
+            
+            Canvas_z.Update()
     
-    Canvas.Update() #very important!!!
-    #Canvas.Write()
-
     
-    ### Zoomed m4l
-    HStack_z, h_list = Stack(fMC2018, fMC2022, '2022CD', "_2GeV_")
-    HData_z = dataGraph(fData2022, "_2GeV_", blind=blindPlots)
-    Canvas_z = ROOT.TCanvas("M4l_2022CD_z","M4l_2022CD_z",canvasSizeX,canvasSizeY)
-    Canvas_z.SetTicks()
-    HData_z.ComputeRange(xmin,ymin,xmax,ymax)
-    yhmax=math.ceil(max(HStack_z.GetMaximum(), ymax.value))
-    HStack_z.SetMaximum(yhmax)
-    HStack_z.Draw("histo")
-    HStack_z.GetXaxis().SetRangeUser(70., 170.)
-    if blindPlots:
-         ROOT.gPad.GetRangeAxis(xmin,ymin,xmax,ymax)
-         bblind_z = ROOT.TBox(blindHLow, 0, blindHHi, ymax.value-epsilon)
-         bblind_z.SetFillColor(ROOT.kGray)
-         bblind_z.SetFillStyle(3002)
-         bblind_z.Draw()
-    HData_z.Draw("samePE1")
-    ROOT.gPad.RedrawAxis()
-    
-    legend_z = ROOT.TLegend(0.72,0.70,0.94,0.92)
-    legend_z.AddEntry(h_list[4],"H(125)","f")
-    legend_z.AddEntry(h_list[3],"q#bar{q}#rightarrow ZZ,Z#gamma*","f")
-    legend_z.AddEntry(h_list[2],"gg#rightarrow ZZ,Z#gamma*","f")
-    legend_z.AddEntry(h_list[1],"EW","f")
-    legend_z.AddEntry(h_list[0],"Z+X","f")
-    legend_z.AddEntry(HData,"Data", "p")
-    legend_z.SetFillColor(ROOT.kWhite)
-    legend_z.SetLineColor(ROOT.kWhite)
-    legend_z.SetTextFont(43)
-    legend_z.SetTextSize(20)
-    legend_z.Draw()
-    
-    #draw CMS and lumi text
-    CMS_lumi.writeExtraText = True
-    CMS_lumi.extraText      = "Preliminary"
-    CMS_lumi.lumi_sqrtS     = "8.1 fb-1 (13.6 TeV)"
-    CMS_lumi.cmsTextSize    = 1 #0.6
-    CMS_lumi.lumiTextSize   = 0.7 #0.46
-    CMS_lumi.extraOverCmsTextSize = 0.75
-    CMS_lumi.relPosX = 0.12
-    CMS_lumi.CMS_lumi(Canvas_z, 0, 0)
-    
-    Canvas_z.Update()
-    
-
-
-
-
-
-    ## -- EFG 2022 m4l plot
-    lumiText = '27.0 fb-1'
-
-
-
-    
-    printCanvases()
+            printCanvases()
     
     
     
