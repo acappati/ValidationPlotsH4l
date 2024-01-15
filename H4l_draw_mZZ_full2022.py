@@ -3,7 +3,7 @@
 # It lacks all the plots and features of the full miniAOD plotter.
 #
 # run 
-# python3 H4l_draw_mZZ.py
+# python3 H4l_draw_mZZ_full2022.py
 
 from __future__ import print_function
 import math
@@ -431,15 +431,6 @@ if __name__ == "__main__" :
     # HStack10.GetXaxis().SetRangeUser(170.,1000.)
     # HData10.Draw("samePE0E1")
     # Canvas10.Update()
-
-
-    ## -- CD 2022 m4l plot
-    lumiText = '8.1 fb-1'
-
-    ## -- EFG 2022 m4l plot
-    lumiText = '27.0 fb-1'
-
-
 
     
     printCanvases()
