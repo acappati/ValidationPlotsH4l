@@ -398,7 +398,7 @@ if __name__ == "__main__" :
 
             ### Zoomed m4l
             HStack_z, h_list = Stack(fMC2018, fMC_2, lumi, "_2GeV_", fs)
-            HData_z = dataGraph(fData2022, "_2GeV_", fs, blind=blindPlots)
+            HData_z = dataGraph(fData, "_2GeV_", fs, blind=blindPlots)
             Canvas_z = ROOT.TCanvas('M4l_z_'+p+'_'+fs,'M4l_z_'+p+'_'+fs,canvasSizeX,canvasSizeY)
             Canvas_z.SetTicks()
             HData_z.ComputeRange(xmin,ymin,xmax,ymax)
