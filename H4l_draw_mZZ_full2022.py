@@ -6,6 +6,12 @@
 # python3 H4l_draw_mZZ_full2022.py
 
 from __future__ import print_function
+import glob
+import optparse
+import os
+import os.path as osp
+import sys
+from datetime import date
 import math
 import ctypes
 import ROOT
@@ -19,7 +25,13 @@ inFilenameMC2022     = 'H4l_MC2022.root'
 inFilenameMC2022EE   = 'H4l_MC2022EE.root'
 inFilenameData2022   = "H4l_Data_CD.root"
 inFilenameData2022EE = "H4l_Data_EFG.root"
-outFilename = "Plots.root"
+outFilename = "Plots_inclusive.root"
+
+## output directory
+today = date.today()
+print('Creating output dir...')
+out_dir = str(today)+'_plots_mZZ_inclusive'
+os.makedirs(out_dir, exist_ok=True) #check if output dir exist
 
 ### 2018 plots
 #Lum = 59.74 # 1/fb
@@ -433,7 +445,7 @@ if __name__ == "__main__" :
     # Canvas10.Update()
 
     
-    printCanvases()
+    printCanvases(path=out_dir)
     
     
     
