@@ -4,13 +4,17 @@
 
 # run with: python3 ggZZ_yields.py
 
-from typing import Dict
+import argparse
 import math
-import ROOT
 from pathlib import Path
-ROOT.PyConfig.IgnoreCommandLineOptions = True
+from tabulate import tabulate
+from typing import Dict
+
+import ROOT
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
 from ZZAnalysis.NanoAnalysis.tools import getLeptons, get_genEventSumw
+
+ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 
 pathMC2018 = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/MC2018/" # FIXME: Use 2018 MC for the time being
@@ -132,6 +136,8 @@ def fillHistos(samplename: str, filename: str, lumi: float) -> Dict[str, ROOT.TH
     return h_yield
 
 
+   
+
 def runMC(outFile): 
 
     if '2018' in outFile:
@@ -158,28 +164,93 @@ def runMC(outFile):
          histos = fillHistos(s["name"], s["filename"], lumi)
          for h in histos.values():
              of.WriteObject(h,h.GetName())
-
+          
     of.Close()
 
-# def runData(outFile):
 
-#     of = ROOT.TFile.Open(outFile,"recreate") 
 
-#     if 'CD' in outFile:
-#         hs_data = fillHistos("Data", pathDATA_CD + "ZZ4lAnalysis.root")
-#     elif 'EFG' in outFile:
-#         hs_data = fillHistos("Data", pathDATA_EFG + "ZZ4lAnalysis.root")
+def printYields(inFile: str):
+    """
+    Print the yields in a pretty way
 
-#     for h in hs_data:
-#         h.SetBinErrorOption(ROOT.TH1.kPoisson)
-#         of.WriteObject(h,h.GetName())
+    Parameters
+    ----------
+    inFile : str
+        File containing the yields histos
+    """
 
-#     of.Close()
+    fs_list = ['4mu', '4e', '2e2mu', '4l']
+    name_list = ['ggTo4e', 'ggTo4mu', 'ggTo4tau', 'ggTo2e2mu', 'ggTo2e2tau', 'ggTo2mu2tau']
+
+    in_file = ROOT.TFile.Open(inFile, 'READ')
+
+    
+    # get histos from input file
+    # define dictionary of list of histos
+    #   input_histos = {'4mu': ['h_yield_4mu_ggTo4e', 'h_yield_4mu_ggTo4mu', etc.],
+    #                   '4e': ['h_yield_4e_ggTo4e', 'h_yield_4e_ggTo4mu', etc.],
+    #                    etc.}
+    input_histos = {fs: [in_file.Get(f'h_yield_{fs}_{name}') for name in name_list] for fs in fs_list}
+    # print yields for check
+    print({fs: [h.GetBinContent(1) for h in h_list] for fs, h_list in input_histos.items()})
+
+    # clone the first histogram of the list
+    #   output_histos = {'4mu': 'h_yield_4mu_ggTo4e'.Clone('ggZZ_4mu'),
+    #                    '4e': 'h_yield_4e_ggTo4e'.Clone('ggZZ_4e'),
+    #                     etc.}    
+    output_histos = {fs: h_list[0].Clone('ggZZ_{fs}') for fs, h_list in input_histos.items()}
+    # print yields for check
+    print({fs: h.GetBinContent(1) for fs, h in output_histos.items()})
+
+    # add the remaining histograms
+    #   loop over fs and the corresponding list of histos
+    #   loop over the histos in the list starting from the second
+    #   add to the corresponding output
+    for fs, h_list in input_histos.items():
+        for h in h_list[1:]:
+            output_histos[fs].Add(h, 1.0)
+
+    # print yields for check
+    debug_dict = {fs: h.GetBinContent(1) for fs, h in output_histos.items()}
+    print(debug_dict)
+    debug_left = sum(list(debug_dict.values())[:-1])  # first three fs (4mu, 4e, 2e2mu)
+    debug_right = list(debug_dict.values())[-1]  # last fs (4l)
+    assert round(debug_left, 3) == round(debug_right, 3), "Yields do not add up!"
+
+
+    # print yields pretty
+    table = []
+    for fs, h in output_histos.items():
+        table.append([fs, h.GetBinContent(1), '+/-', h.GetBinError(1)])
+    table = tabulate(table, headers=['fs', 'yields', '', 'unc.'], tablefmt='pipe', floatfmt='.3f', numalign='right', stralign='left')
+    print(table)
+         
+
+
+def main(args: argparse.Namespace) -> int:
+
+    for file in args.input:
+
+        if args.hists:
+            print(f'Making histograms for {file}...')
+            runMC(file)
+
+        print(f'Printing yields from {file}...')
+        printYields(file)
+
+    return 0
+
 
 if __name__ == "__main__" :
 
-    print('Running 2018 ggZZ')
-    runMC('H4l_ggZZ_2018.root')
+    import sys
 
-    print('Running 2022EE ggZZ')
-    runMC('H4l_ggZZ_2022EE.root')
+    parser = argparse.ArgumentParser(description='Print the yields', epilog='Contact info: Alessandra Cappati <alessandra.cappati@cern.ch>')
+    parser.add_argument('input', nargs='+', help='input files')
+    parser.add_argument('--hists', action='store_true', help='Remake histograms')
+    args = parser.parse_args()
+
+    code = main(args)
+    sys.exit(code)
+
+        
