@@ -7,7 +7,7 @@ import math
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
-from ZZAnalysis.NanoAnalysis.tools import getLeptons
+from ZZAnalysis.NanoAnalysis.tools import getLeptons, get_genEventSumw
 
 
 pathMC2018 = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/MC2018/" # FIXME: Use 2018 MC for the time being
@@ -15,6 +15,7 @@ pathDATA_CD = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano
 pathDATA_EFG = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/Data2022_EFG/" # data for 2022EE period
 pathMC2022 = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231214_nano/MC2022/'
 pathMC2022EE = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231214_nano/MC2022EE/'
+pathggZZMC2022EE = '../prod/ggZZ_no0p5_fb_12Mar2024/'
 
 
 ZmassValue = 91.1876
@@ -381,23 +382,10 @@ def fillHistos(samplename, filename) :
         event.SetBranchStatus("overallEventWeight",1)
 
         # Get sum of weights
-        runs = f.Runs
-        nRuns = runs.GetEntries()
-        iRun = 0
-        genEventCount = 0
-        genEventSumw = 0.
-        while iRun < nRuns and runs.GetEntry(iRun) :
-            genEventCount += runs.genEventCount
-            genEventSumw += runs.genEventSumw
-            iRun +=1
-        print (samplename, ": gen=", genEventCount, "sel=",nEntries, "sumw=", genEventSumw)
-        # run only up to a certain number of evt
-        # if nEntries>maxEntriesPerSample :
-        #    genEventSumw = genEventSumw*maxEntriesPerSample/nEntries
-        #    nEntries=maxEntriesPerSample
-        #    print("   scaling to:", nEntries, "sumw=", genEventSumw )
+        genEventSumw = get_genEventSumw(f, maxEntriesPerSample)
 
-
+        
+    # loop over events
     iEntry=0
     printEntries=max(5000,nEntries/10)
     while iEntry<nEntries and event.GetEntry(iEntry):
@@ -524,22 +512,20 @@ def fillHistos(samplename, filename) :
 def runMC(outFile): 
 
     if '2018' in outFile:
-        samples = [
-            # ggZZ from 2018
-            dict(name = "ggTo4mu",filename = pathMC2018+
-                        "ggTo4mu_Contin_MCFM701/ZZ4lAnalysis.root"),
-            dict(name = "ggTo4e",filename = pathMC2018+
-                        "ggTo4e_Contin_MCFM701/ZZ4lAnalysis.root"),
-            dict(name = "ggTo4tau",filename = pathMC2018+
-                        "ggTo4tau_Contin_MCFM701/ZZ4lAnalysis.root"),
-            dict(name = "ggTo2e2mu",filename = pathMC2018+
-                        "ggTo2e2mu_Contin_MCFM701/ZZ4lAnalysis.root"),       
-            dict(name = "ggTo2e2tau",filename = pathMC2018+
-                        "ggTo2e2tau_Contin_MCFM701/ZZ4lAnalysis.root"),
-            dict(name = "ggTo2mu2tau",filename = pathMC2018+
-                        "ggTo2mu2tau_Contin_MCFM701/ZZ4lAnalysis.root"),
-        ]
-    elif '2022EE' in outFile:
+        pathMC = pathMC2018
+    elif 'ggZZ_2022EE' in outfile:
+        pathMC = pathggZZMC2022EE
+    samples = [
+        # ggZZ from 2018
+        dict(name = "ggTo4e",     filename = pathMC + "ggTo4e_Contin_MCFM701/ZZ4lAnalysis.root"),
+        dict(name = "ggTo4mu",    filename = pathMC + "ggTo4mu_Contin_MCFM701/ZZ4lAnalysis.root"),
+        dict(name = "ggTo4tau",   filename = pathMC + "ggTo4tau_Contin_MCFM701/ZZ4lAnalysis.root"),
+        dict(name = "ggTo2e2mu",  filename = pathMC + "ggTo2e2mu_Contin_MCFM701/ZZ4lAnalysis.root"),       
+        dict(name = "ggTo2e2tau", filename = pathMC + "ggTo2e2tau_Contin_MCFM701/ZZ4lAnalysis.root"),
+        dict(name = "ggTo2mu2tau",filename = pathMC + "ggTo2mu2tau_Contin_MCFM701/ZZ4lAnalysis.root"),
+    ]
+    
+    if '2022EE' in outFile:
         samples = [
             dict(name = "ggH125",filename = pathMC2022EE+
                         "ggH125/ZZ4lAnalysis.root"),
@@ -636,6 +622,10 @@ if __name__ == "__main__" :
     print('Running 2022EE')
     runMC('H4l_MC2022EE.root')
     print('Running C-D data')
+    
     runData('H4l_Data_CD.root')
     print('Running E-F-G data')
     runData('H4l_Data_EFG.root')
+
+    print('Running ggZZ 2022EE')
+    runMC('H4l_ggZZ_2022EE.root')
