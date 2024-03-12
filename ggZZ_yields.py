@@ -2,7 +2,9 @@
 ### Example macro for filling standard histograms from H4l nanoAODs.
 ### Histograms are stored on a file and can then be plotted with
 
-# run with: python3 ggZZ_yields.py
+# specify as argument the root file where to save yields histograms 
+# run with: python3 ggZZ_yields.py ggZZ_2018.root ggZZ_2022EE.root
+
 
 import argparse
 import math
@@ -22,7 +24,7 @@ pathMC2018 = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/
 # pathDATA_EFG = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231209_nano/Data2022_EFG/" # data for 2022EE period
 # pathMC2022 = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231214_nano/MC2022/'
 # pathMC2022EE = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/231214_nano/MC2022EE/'
-pathMC2022EE = '../prod/ggZZ_no0p5_fb/'
+pathMC2022EE = '../prod/ggZZ_no0p5_fb_12Mar2024/'
 
 
 ZmassValue = 91.1876
